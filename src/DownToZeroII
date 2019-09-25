@@ -1,0 +1,68 @@
+import java.io.*;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+
+public class DownToZeroII {
+
+    /*
+     * Link: https://www.hackerrank.com/challenges/down-to-zero-ii/problem
+     * The very important thing to notice here is that - unfortunately, factorization is hard.
+     * For that reason, a single query for a number could end up being rather pricey.
+     * However, as the maximum n is not too large - we can simply fill an array with the answer for all queries!
+     * As the maximum n is 1 million, we can simply iterate on i from 1 to 1M, and fill out the minimum number of steps for i.
+     * Upon factorization of i, we will take the minimum value between all factors of i that are >=sqrt(i) and (i-1), and simply add 1 to it - that's the answer for i.
+     * This is a 1-time process. Once we have it and store all results in an array, we can simply query in O(1) for every input we get.
+     */
+
+    static Map<Integer,Integer> map = new HashMap<>();
+    static int[] arr = new int[1000000];
+    static Queue<Integer> queue = new LinkedList<>();
+
+    static int downToZero(int n) {
+        return arr[n];
+    }
+
+    static void fillArray() {
+        arr[0] = 0;
+        arr[1] = 1;
+        for (int i=2; i < arr.length; i++) {
+            downToZeroAux(i);
+        }
+    }
+    static void downToZeroAux(int n) {
+        if (arr[n] != 0) return;
+        int min = n;
+        for (int i=2; i <= Math.sqrt(n); i++) {
+            if (n % i == 0) {
+                int tempMin = arr[n/i];
+                if ( 1+tempMin < min) {
+                    min = 1 + tempMin;
+                }
+            }
+        }
+        int otherMin =arr[n-1]+1;
+        min = Math.min(min, otherMin);
+        arr[n] = min;
+    }
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int q = Integer.parseInt(scanner.nextLine().trim());
+        fillArray();
+        for (int qItr = 0; qItr < q; qItr++) {
+            int n = Integer.parseInt(scanner.nextLine().trim());
+
+            int result = downToZero(n);
+
+            bufferedWriter.write(String.valueOf(result));
+            bufferedWriter.newLine();
+        }
+
+        bufferedWriter.close();
+    }
+}
